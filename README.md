@@ -53,11 +53,12 @@ Grafana será utilizado para visualização e investigação.
 - [x] Adicionar health check
 - [x] Adicionar métricas Prometheus
 - [x] Adicionar testes automatizados
-- [ ] Criar Dockerfile
+- [x] Criar Dockerfile
+- [x] Executar aplicação em container
+- [ ] Criar pipeline de testes no GitHub Actions
 - [ ] Criar infraestrutura com Terraform
 - [ ] Criar cluster EKS
 - [ ] Criar manifests Kubernetes
-- [ ] Configurar GitHub Actions
 - [ ] Instalar ArgoCD
 - [ ] Instalar Prometheus e Grafana
 - [ ] Criar dashboards e alertas
