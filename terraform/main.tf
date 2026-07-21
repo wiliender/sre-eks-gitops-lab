@@ -10,3 +10,16 @@ locals {
     ManagedBy   = "Terraform"      # Indica que o recurso é gerenciado via Infraestrutura como Código (IaC)
   }
 }
+
+# Chama e instancia o módulo customizado de rede (VPC)
+module "vpc" {
+  # Define o caminho relativo do código-fonte onde os recursos da VPC estão declarados
+  source = "./modules/vpc"
+
+  # Passa a região da AWS configurada no projeto raiz para dentro do módulo
+  aws_region = var.aws_region
+
+  # Repassa os metadados para padronização de nomenclatura e tags dentro do módulo
+  project_name = var.project_name
+  environment  = var.environment
+}

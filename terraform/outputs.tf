@@ -22,3 +22,15 @@ output "name_prefix" {
   description = "Prefixo utilizado na nomenclatura dos recursos"
   value       = local.name_prefix
 }
+
+output "vpc_id" {
+  value = module.vpc.vpc_id
+}
+
+output "private_subnets" {
+  value = module.vpc.private_subnets
+}
+
+output "public_subnets" {
+  value = module.vpc.public_subnets
+}
