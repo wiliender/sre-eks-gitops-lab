@@ -23,3 +23,23 @@ module "vpc" {
   project_name = var.project_name
   environment  = var.environment
 }
+
+# Instancia o módulo EKS chamando o código local que encapsula a criação do cluster
+module "eks" {
+  # Aponta para a pasta do módulo local de EKS dentro do seu projeto
+  source = "./modules/eks"
+
+  # Repassa o nome do cluster e a versão desejada do Kubernetes definidos nas variáveis da raiz
+  cluster_name       = var.cluster_name
+  kubernetes_version = var.kubernetes_version
+
+  # Integração direta com o Módulo VPC:
+  # Passa o ID da VPC criada pelo módulo de rede
+  vpc_id = module.vpc.vpc_id
+
+  # Passa a lista de IDs das subnets privadas geradas pelo módulo de rede
+  subnet_ids = module.vpc.private_subnets
+
+  # Passa o nome do ambiente (ex: dev, prod) para rotulagem e parametrização
+  environment = var.environment
+}
