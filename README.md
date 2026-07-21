@@ -62,3 +62,10 @@ Grafana será utilizado para visualização e investigação.
 - [ ] Instalar ArgoCD
 - [ ] Instalar Prometheus e Grafana
 - [ ] Criar dashboards e alertas
+
+## Executar com Docker
+
+Construa a imagem:
+
+```bash
+docker build -t sre-eks-gitops-lab:v1 ./application
