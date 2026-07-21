@@ -63,23 +63,23 @@ jobs:
       - name: Construir imagem Docker
         run: | # Gera a imagem usando o hash do commit como tag / Contexto do build apontando para a pasta 'application'
           docker build \
-            -t sre-eks-gitops-lab:${{ github.sha }} \  
+            -t sre-eks-gitops-lab:${{ github.sha }} \
             ./application
 
       - name: Testar inicialização do container
-        run: | # Usa a imagem gerada no passo anterior / Faz requisição no healthcheck (falha o job se não der 200 OK)
-          docker run -d \  # Inicia o container em segundo plano
-            --name sre-demo \  # Nomeia o container como 'sre-demo'
-            -p 8080:8080 \  # Mapeia a porta 8080
+        run: | # Usa a imagem gerada no passo anterior / Faz requisição no healthcheck (falha o job se não der 200 OK) / Inicia o container em segundo plano / Nomeia o container como 'sre-demo' / Mapeia a porta 8080
+          docker run -d \
+            --name sre-demo \
+            -p 8080:8080 \
             sre-eks-gitops-lab:${{ github.sha }}
 
-          sleep 10  # Aguarda 10 segundos para a aplicação subir
+          sleep 10
 
           curl --fail http://localhost:8080/health
 
       - name: Exibir logs em caso de falha
         if: failure()  # Executado APENAS se algum passo anterior deste job falhar
-        run: docker logs sre-demo  # Exibe os logs da aplicação para ajudar no diagnóstico de erro
+        run: docker logs sre-demo || true  # Exibe os logs da aplicação para ajudar no diagnóstico de erro
 
       - name: Remover container
         if: always()  # Executado SEMPRE (passando ou falhando) para não deixar sujeira
