@@ -55,7 +55,8 @@ Grafana será utilizado para visualização e investigação.
 - [x] Adicionar testes automatizados
 - [x] Criar Dockerfile
 - [x] Executar aplicação em container
-- [ ] Criar pipeline de testes no GitHub Actions
+- [x] Criar pipeline de testes no GitHub Actions
+- [x] Validar build da imagem Docker
 - [ ] Criar infraestrutura com Terraform
 - [ ] Criar cluster EKS
 - [ ] Criar manifests Kubernetes
