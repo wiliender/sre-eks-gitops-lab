@@ -1,0 +1,86 @@
+# Nome exibido no painel do GitHub Actions
+name: CI da aplicação
+
+# Define os gatilhos que disparam a execução deste workflow
+on:
+  # Dispara quando houver envio de código (push)
+  push:
+    branches:
+      - main  # ...especificamente para a branch 'main'
+
+  # Dispara quando um Pull Request for aberto ou atualizado
+  pull_request:
+    branches:
+      - main  # ...com destino à branch 'main'
+
+# Define as permissões do token (GITHUB_TOKEN) usado no workflow
+permissions:
+  contents: read  # Permissão apenas para ler o código (princípio do menor privilégio)
+
+# Conjunto de tarefas (jobs) que serão executadas
+jobs:
+  # Primeiro job: responsável por rodar os testes da aplicação
+  tests:
+    name: Testes Python  # Nome descritivo do job
+    runs-on: ubuntu-latest  # Executa numa máquina virtual Ubuntu mais recente gerenciada pelo GitHub
+
+    # Configuração padrão para a execução de comandos neste job
+    defaults:
+      run:
+        working-directory: application  # Define a pasta 'application' como diretório raiz dos comandos
+
+    # Sequência de passos que o job de testes vai executar
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4  # Clona o código do repositório para a máquina virtual
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5  # Instala e configura a versão do Python desejada
+        with:
+          python-version: "3.12"  # Define o Python na versão 3.12
+          cache: "pip"  # Habilita o cache do pip para acelerar builds futuros
+          cache-dependency-path: application/requirements.txt  # Arquivo usado como referência para o cache
+
+      - name: Instalar dependências
+        run: |  # Executa comandos Shell em bloco / Atualiza o gerenciador de pacotes pip / Instala as dependências listadas no projeto
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Executar testes
+        run: pytest -v  # Executa os testes automatizados com saída detalhada (-v)
+
+  # Segundo job: responsável pelo build e validação da imagem Docker
+  docker:
+    name: Build da imagem Docker  # Nome descritivo do job
+    runs-on: ubuntu-latest  # Roda em uma máquina virtual Ubuntu
+    needs: tests  # Só executa este job se o job 'tests' for concluído com sucesso
+
+    # Sequência de passos que o job do Docker vai executar
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4  # Clona o repositório na máquina deste job
+
+      - name: Construir imagem Docker
+        run: | # Gera a imagem usando o hash do commit como tag / Contexto do build apontando para a pasta 'application'
+          docker build \
+            -t sre-eks-gitops-lab:${{ github.sha }} \  
+            ./application
+
+      - name: Testar inicialização do container
+        run: | # Usa a imagem gerada no passo anterior / Faz requisição no healthcheck (falha o job se não der 200 OK)
+          docker run -d \  # Inicia o container em segundo plano
+            --name sre-demo \  # Nomeia o container como 'sre-demo'
+            -p 8080:8080 \  # Mapeia a porta 8080
+            sre-eks-gitops-lab:${{ github.sha }}
+
+          sleep 10  # Aguarda 10 segundos para a aplicação subir
+
+          curl --fail http://localhost:8080/health
+
+      - name: Exibir logs em caso de falha
+        if: failure()  # Executado APENAS se algum passo anterior deste job falhar
+        run: docker logs sre-demo  # Exibe os logs da aplicação para ajudar no diagnóstico de erro
+
+      - name: Remover container
+        if: always()  # Executado SEMPRE (passando ou falhando) para não deixar sujeira
+        run: docker rm -f sre-demo || true  # Força a remoção do container de teste sem quebrar se não existir
