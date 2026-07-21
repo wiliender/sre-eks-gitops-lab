@@ -1,0 +1,53 @@
+# Nome exibido no painel do GitHub Actions
+name: Terraform CI
+
+# Define os gatilhos de execução do workflow
+on:
+  # Dispara no push direto para a main
+  push:
+    branches:
+      - main
+    paths:
+      - "terraform/**"                   # Executa APENAS se houver mudanças na pasta terraform
+      - ".github/workflows/terraform.yml" # ...ou no próprio arquivo da pipeline
+
+  # Dispara na abertura/atualização de Pull Requests para a main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "terraform/**"                   # Aplica o mesmo filtro de caminhos para PRs
+      - ".github/workflows/terraform.yml"
+
+# Permissões do token do GitHub (GITHUB_TOKEN)
+permissions:
+  contents: read  # Leitura do código apenas (boa prática de segurança)
+
+jobs:
+  # Job responsável por checar a saúde do código Terraform
+  validate:
+    name: Validar Terraform
+    runs-on: ubuntu-latest  # Executa numa VM Ubuntu gerenciada pelo GitHub
+
+    # Define o diretório de execução padrão para todos os passos deste job
+    defaults:
+      run:
+        working-directory: terraform  # Garante que os comandos rodem dentro da pasta 'terraform'
+
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4  # Clona o repositório na máquina do runner
+
+      - name: Configurar Terraform
+        uses: hashicorp/setup-terraform@v3  # Instala a CLI do Terraform na VM
+        with:
+          terraform_version: "1.14.1"       # Fixa a versão exata do Terraform utilizada no CI
+
+      - name: Verificar formatação
+        run: terraform fmt -check -recursive  # Falha se algum arquivo .tf não seguir o padrão de formatação
+
+      - name: Inicializar Terraform
+        run: terraform init -backend=false   # Baixa apenas os providers necessários sem conectar ao S3/AWS
+
+      - name: Validar configuração
+        run: terraform validate               # Valida a sintaxe HCL e checa se as referências de variáveis/módulos estão corretas
