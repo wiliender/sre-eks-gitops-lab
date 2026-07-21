@@ -52,5 +52,5 @@ variable "cluster_name" {
 variable "kubernetes_version" {
   description = "Versão do Kubernetes utilizada pelo Amazon EKS"
   type        = string
-  default     = "1.35"
+  default     = "1.32"
 }
