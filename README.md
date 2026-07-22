@@ -74,10 +74,13 @@ Grafana será utilizado para visualização e investigação.
 
 ## Kubernetes
 
-- [ ] Criar namespace da aplicação
-- [ ] Criar Deployment
-- [ ] Criar Service
-- [ ] Realizar deploy da aplicação no EKS
+- [x] Criar namespace da aplicação
+- [x] Criar Deployment
+- [x] Criar Service
+- [x] Realizar deploy da aplicação no Minikube
+- [x] Validar endpoints da aplicação
+- [x] Expor métricas Prometheus
+- [ ] Realizar deploy da aplicação no Amazon EKS
 
 ## GitOps
 
@@ -125,3 +128,25 @@ tfstate salvo no bucket
 Maquina EC2 Provisionada
 
 ![alt text](docs/images/1784613277914.png)
+
+## Deploy da aplicação no Kubernetes
+
+A aplicação Flask foi implantada localmente em um cluster Kubernetes utilizando Minikube.
+
+O deploy utiliza:
+
+- Namespace dedicado `sre-lab`
+- Kubernetes Deployment
+- Kubernetes Service do tipo NodePort
+- Readiness Probe
+- Liveness Probe
+- Requests e Limits de recursos
+- Imagem Docker executada na porta `8080`
+
+### Validação do Pod
+
+```bash
+kubectl get pods -n sre-lab
+```
+![alt text](docs/images/kubernetes-application-running.png)
+

@@ -1,0 +1,14 @@
+# Define a versão da API do Kustomize utilizada.
+# 'v1beta1' sob 'kustomize.config.k8s.io' é a versão estável e padrão integrada nativamente ao kubectl.
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+# Define o tipo de recurso. O 'Kustomization' instrui o Kustomize sobre como
+# montar e organizar os manifestos Kubernetes deste diretório.
+kind: Kustomization
+
+# Lista de arquivos YAML que compõem este módulo ou aplicação.
+# O Kustomize vai carregar, validar e unir todos esses manifestos em um único lote de execução.
+resources:
+  - namespace.yaml   # Criação do Namespace isolado (sre-lab)
+  - deployment.yaml  # Definição dos Pods, Probes e Recursos da aplicação
+  - service.yaml     # Exposição do serviço para tráfego (NodePort)

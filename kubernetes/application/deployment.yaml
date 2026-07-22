@@ -1,0 +1,80 @@
+# Versão da API para recursos de workloads (Deployments, StatefulSets, DaemonSets)
+apiVersion: apps/v1
+
+# Tipo do recurso: Um Deployment gerencia a implantação declarativa e atualização dos Pods
+kind: Deployment
+
+# Metadados de identificação do próprio Deployment
+metadata:
+  # Nome do Deployment no cluster
+  name: sre-app
+  # Namespace isolado onde o Deployment será criado
+  namespace: sre-lab
+  # Tags chave-valor para organizar e filtrar este objeto Deployment
+  labels:
+    app: sre-app
+
+# Especificação do comportamento desejado para o Deployment
+spec:
+  # Quantidade desejada de instâncias (Pods) rodando em paralelo
+  replicas: 1
+
+  # Define como o Deployment identifica quais Pods ele é responsável por gerenciar
+  selector:
+    matchLabels:
+      # Precisa bater exatamente com a label definida no template do Pod abaixo
+      app: sre-app
+
+  # Modelo (molde) usado para criar os Pods gerenciados por este Deployment
+  template:
+    metadata:
+      # Labels atribuídas a CADA Pod individual criado por este Deployment
+      labels:
+        app: sre-app
+
+    # Especificação dos containers que rodarão dentro do Pod
+    spec:
+      containers:
+        # Nome do container dentro do Pod
+        - name: sre-app
+          # Imagem Docker/OCI a ser executada
+          image: sre-eks-gitops-lab:v1
+          # Política de pull: 'Never' força o K8s a usar a imagem local (ideal para Minikube/testes sem registry)
+          imagePullPolicy: Never
+
+          # Portas expostas pelo container
+          ports:
+            # Porta onde a aplicação está escutando no container
+            - containerPort: 8080
+
+          # Checa se a aplicação está PRONTA para receber tráfego do Service
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            # Espera 5s após o container iniciar antes de fazer o primeiro teste
+            initialDelaySeconds: 5
+            # Repete o teste a cada 10s
+            periodSeconds: 10
+
+          # Checa se a aplicação está VIVA (se falhar, o Kubernetes mata e reinicia o container)
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            # Espera 15s antes da primeira checagem para dar tempo da app inicializar
+            initialDelaySeconds: 15
+            # Repete a checagem a cada 20s
+            periodSeconds: 20
+
+          # Alocação e limites de recursos de computação para o container
+          resources:
+            # Garantia mínima de recursos que o nó precisa ter livre para agendar este Pod
+            requests:
+              cpu: "100m"     # 100 millicores (0.1 vCPU)
+              memory: "128Mi" # 128 Megabytes de RAM
+
+            # Limite máximo absoluto de consumo permitido
+            limits:
+              cpu: "500m"     # Se passar de 0.5 vCPU, sofre Throttling (lentidão)
+              memory: "256Mi" # Se passar de 256 MiB de RAM, o container sofre OOMKilled (é reiniciado)
