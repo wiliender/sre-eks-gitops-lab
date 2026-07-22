@@ -1,0 +1,13 @@
+# Define a versão da API do Kubernetes utilizada para este recurso.
+# 'v1' é a versão estável da API core/principal para recursos básicos como Namespace, Pod e Service.
+apiVersion: v1
+
+# Define o tipo de recurso do Kubernetes que você está criando.
+# O 'Namespace' serve para isolar e organizar recursos de forma lógica dentro do cluster.
+kind: Namespace
+
+# Bloco de metadados contendo informações de identificação do recurso.
+metadata:
+  # Nome único do Namespace no cluster.
+  # Todos os manifestos da sua aplicação serão implantados dentro deste espaço 'sre-lab'.
+  name: sre-lab
