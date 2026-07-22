@@ -75,9 +75,12 @@ Grafana será utilizado para visualização e investigação.
 ## Kubernetes
 
 - [x] Criar namespace da aplicação
-- [ ] Criar Deployment
-- [ ] Criar Service
-- [ ] Realizar deploy da aplicação no EKS
+- [x] Criar Deployment
+- [x] Criar Service
+- [x] Realizar deploy da aplicação no Minikube
+- [x] Validar endpoints da aplicação
+- [x] Expor métricas Prometheus
+- [ ] Realizar deploy da aplicação no Amazon EKS
 
 ## GitOps
 
